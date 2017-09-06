@@ -36,6 +36,10 @@ public class ReceivingThread implements Runnable {
                 if(receivedPacket.operation == "message"){
 
                 }
+
+                if(receivedPacket.operation == "send"){
+
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
