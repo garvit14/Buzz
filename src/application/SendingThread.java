@@ -8,16 +8,17 @@ import java.sql.Connection;
 
 public class SendingThread implements Runnable {
     private Socket clientSocket;
-    private Connection conn;
+    private Packet sendPacket;
     private ObjectOutputStream serverOutputStream;
-    public SendingThread(Socket clientSocket, Connection conn){
+    public SendingThread(Socket clientSocket, Packet sendPacket){
         this.clientSocket=clientSocket;
-        this.conn=conn;
+        this.sendPacket=sendPacket;
     }
     @Override
     public void run() {
         try {
             serverOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+            serverOutputStream.writeObject(sendPacket);
         } catch (IOException e) {
             e.printStackTrace();
         }
