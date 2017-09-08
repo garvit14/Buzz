@@ -10,4 +10,9 @@ public class Packet implements Serializable{
    public String string3=null;
    public boolean result;
    public List <Message> list;
+
+   public Packet(){
+      list=new ArrayList<>();
+   }
+
 }

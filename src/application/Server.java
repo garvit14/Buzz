@@ -1,5 +1,7 @@
 package application;
 
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Connection;
@@ -9,25 +11,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Server {
-    public static Map<Socket,String> socketMap;
+    public static Map<String,ObjectOutputStream> socketMap;
 
     public static void  main(String args[]) throws Exception{
 
-        socketMap=new HashMap<Socket,String>();
+        socketMap= new HashMap<>();
         ServerSocket serverSocket = new ServerSocket(7777);
         Connection con = getDatabaseConnection();
         while (true) {
             Socket clientSocket = serverSocket.accept();
-            socketMap.put(clientSocket,null);
-            ReceivingThread receivingThread=new ReceivingThread(clientSocket,con);
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
+            System.out.println("Client connected");
+            ReceivingThread receivingThread=new ReceivingThread(clientSocket,con,objectOutputStream);
             Thread receive = new Thread(receivingThread);
             receive.start();
 //            SendingThread sendingThread=new SendingThread(clientSocket,con);
 //            Thread send = new Thread(sendingThread);
 //            send.start();
         }
-
-
     }
     private static Connection getDatabaseConnection() throws Exception{
             Connection conn = null;

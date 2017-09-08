@@ -7,18 +7,20 @@ import java.net.Socket;
 import java.sql.Connection;
 
 public class SendingThread implements Runnable {
-    private Socket clientSocket;
-    private Packet sendPacket;
-    private ObjectOutputStream serverOutputStream;
-    public SendingThread(Socket clientSocket, Packet sendPacket){
-        this.clientSocket=clientSocket;
-        this.sendPacket=sendPacket;
+    private Packet packet;
+    private ObjectOutputStream objectOutputStream;
+    public SendingThread(ObjectOutputStream objectOutputStream, Packet packet){
+        this.objectOutputStream=objectOutputStream;
+        this.packet=packet;
     }
+
     @Override
     public void run() {
         try {
-            serverOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
-            serverOutputStream.writeObject(sendPacket);
+            if(objectOutputStream==null)
+                System.out.println("Maa ki");
+            objectOutputStream.writeObject(packet);
+            objectOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }

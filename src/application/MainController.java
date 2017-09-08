@@ -23,8 +23,9 @@ public class MainController {
     public ObservableList<People> peopleList;
     public ObservableList<Message> messageList;
 
-    private People currentlyOpenUser;
-    private LocalDB db;
+    public People currentlyOpenUser;
+    public LocalDB db;
+    private Main main;
 
     @FXML
     public void initialize() {
@@ -64,6 +65,11 @@ public class MainController {
             System.out.println("ResultSet error in send");
             e.printStackTrace();
         }
+    }
+
+    public void setMain(Main main){
+        this.main=main;
+        db.setMain(main);
     }
 
 }

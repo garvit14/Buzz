@@ -1,24 +1,32 @@
 package application;
 
+import javafx.application.Platform;
+
 import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /*
-    Class to handle all the local database queries
-    Current DB: sqlite
-*/
+ *  Class to handle all the local database queries
+ *  Current DB: sqlite
+ */
 
 public class LocalDB {
 
     private Connection conn;
     private MainController controller;
+    private Main main;
 
     public LocalDB(MainController controller){
         // Set MainController reference
         this.controller=controller;
+        this.main=main;
         connect();
+    }
+
+    public void setMain(Main main){
+        this.main=main;
     }
 
     public void connect() {
@@ -94,10 +102,34 @@ public class LocalDB {
         }
     }
 
-    public void sendMessage(People receiver,String message) throws SQLException {
-        String query="insert into Messages values('"+Main.user.userName+"','"+receiver.userName+"','"+message+"',datetime())";
-        DBupdate(query);
+    public void sendMessage(People receiver,String text) throws SQLException {
+        Message message = new Message(text,Main.user.userName,receiver.userName,new Date());
+        System.out.println(message);
+        storeMessage(message);
         updateAllMessages(receiver);
+        if(main.isConnected){
+            Packet packet = new Packet();
+            packet.operation="send";
+            packet.list.add(message);
+            SendingThread sendingThread = new SendingThread(main.objectOutputStream,packet);
+            Thread t=new Thread(sendingThread);
+            t.start();
+        }
+    }
+
+    public void receiveMessage(Message message){
+        storeMessage(message);
+        try {
+            updateAllMessages(controller.currentlyOpenUser);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        //updateAllMessages(message.sender);
+    }
+
+    public void storeMessage(Message message){
+        String query="insert into Messages values('"+message.sender+"','"+message.receiver+"','"+message.text+"',datetime())";
+        DBupdate(query);
     }
 
 }
