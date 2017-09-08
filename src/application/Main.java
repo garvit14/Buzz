@@ -35,24 +35,25 @@ public class Main extends Application {
         primaryStage.setTitle("Buzz");
         primaryStage.setScene(new Scene(root));
         primaryStage.show();
-        if(connection("192.168.31.136")) {
+        if(connection("localhost")) {
             isConnected=true;
             ReceivingThread receivingThread = new ReceivingThread(socket,null,mainController.db);
             Thread t = new Thread(receivingThread);
             t.start();
-            System.out.println("Connection to server established");
+            System.out.println("Connection to sever established");
         }
 //        Parent root = FXMLLoader.load(getClass().getResource("../resources/fxml/login.fxml"));
 //        primaryStage.setTitle("Buzz");
 //        primaryStage.setResizable(false);
 //        primaryStage.setScene(new Scene(root));
-//        primaryStage.show();w
+//        primaryStage.show();
 
     }
 
     public static void main(String[] args) {
-//        user=new People("Sumit","sumit","");
-        user=new People("Garvit","garvit","");
+        user=new People("Sumit","sumit","");
+        //user=new People("Garvit","garvit","");
+        //user=new People("Anubahv","anubhav","");
         launch(args);
     }
 

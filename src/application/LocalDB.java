@@ -71,6 +71,7 @@ public class LocalDB {
 
     public void updateAllMessages(People user) throws SQLException {
         int c=0;
+        System.out.println(""+user);
         String query="select * from Messages where sender='"+user.userName+"' or receiver='"+user.userName+"';";
         ResultSet rs = DBquery(query);
         controller.messageList.clear();
@@ -98,6 +99,7 @@ public class LocalDB {
         String query="select * from Users";
         ResultSet rs = DBquery(query);
         while(rs.next()){
+
             controller.peopleList.add(new People(rs.getString("name"),rs.getString("username"),rs.getString("email")));
         }
     }
@@ -120,7 +122,8 @@ public class LocalDB {
     public void receiveMessage(Message message){
         storeMessage(message);
         try {
-            updateAllMessages(controller.currentlyOpenUser);
+            People user = new People("",message.receiver,"");
+            updateAllMessages(user);
         } catch (SQLException e) {
             e.printStackTrace();
         }

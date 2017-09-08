@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Date;
 
 //this class also conatins server database methods
 
@@ -57,7 +57,21 @@ public class ReceivingThread implements Runnable {
 
                     ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
                     Server.socketMap.put(p.string1,objectOutputStream);
-
+                    p.operation = "receive";
+                    String url = "jdbc:sqlite:./Databases/BuzzServer.db";
+                    conn = DriverManager.getConnection(url);
+                    String query = "Select * from Messages where receiver = '"+p.string1+"'";
+                    Statement stmt = conn.createStatement();
+                    ResultSet rs = stmt.executeQuery(query);
+                    while(rs.next()){
+                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                        String testDate="2017-09-08 13:00:14";
+                        Message message = new Message(rs.getString("message"),rs.getString("sender"),rs.getString("receiver"),df.parse(testDate));
+                        p.list.add(message);
+                    }
+                    SendingThread sendingThread = new SendingThread(objectOutputStream,p);
+                    Thread send = new Thread(sendingThread);
+                    send.start();
 
                 }else if(p.operation.equals("send")){
 
@@ -83,18 +97,21 @@ public class ReceivingThread implements Runnable {
                     }
 
                 }else if(p.operation.equals("receive")){
-                    for(int i=0;i<p.list.size();i++) {
+                    for(int i=0;i<p.list.size();++i) {
                         final int temp=i;
                         Platform.runLater(() -> {
                             db.receiveMessage(p.list.get(temp));
                         });
                     }
-
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
             e.printStackTrace();
         }
     }

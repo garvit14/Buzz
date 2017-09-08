@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +15,6 @@ public class Server {
     public static Map<String,ObjectOutputStream> socketMap;
 
     public static void  main(String args[]) throws Exception{
-
         socketMap= new HashMap<>();
         ServerSocket serverSocket = new ServerSocket(7777);
         Connection con = getDatabaseConnection();
@@ -45,6 +45,7 @@ public class Server {
             } finally {
                 try {
                     if (conn != null) {
+                        //System.out.println("Connection is closing.");
                         conn.close();
                     }
                 } catch (SQLException ex) {
