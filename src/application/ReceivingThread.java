@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
@@ -65,15 +66,14 @@ public class ReceivingThread implements Runnable {
                         Thread t=new Thread(sendingThread);
                         t.start();
                     }else{
-                        Statement stmt= null;
+                        Statement stmt = null;
                         try {
+                            String url = "jdbc:sqlite:./Databases/BuzzServer.db";
+                            conn = DriverManager.getConnection(url);
                             stmt = conn.createStatement();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                        }
                         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        String query="insert into Messages (sender,receiver,message,time) values('"+p.list.get(0).sender+"','"+p.list.get(0).receiver+"','"+p.list.get(0).text+"','"+df.format(p.list.get(0).date)+")";
-                        try {
+                        String query="insert into Messages (sender,receiver,message,time) values('"+p.list.get(0).sender+"','"+p.list.get(0).receiver+"','"+p.list.get(0).text+"','"+df.format(p.list.get(0).date)+"')";
+                        System.out.println(query);
                             stmt.executeUpdate(query);
                         } catch (SQLException e) {
                             System.out.println("Cannot store message to database");
@@ -83,11 +83,7 @@ public class ReceivingThread implements Runnable {
 
                 }else if(p.operation.equals("receive")){
 
-                    Platform.runLater(()->{
-                        db.receiveMessage(p.list.get(0));
-                    });
-
-                    //db.receiveMessage(p.list.get(0));
+                    Platform.runLater(()->{  db.receiveMessage(p.list.get(0)); });
 
                 }
             }
