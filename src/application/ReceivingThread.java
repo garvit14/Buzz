@@ -58,6 +58,7 @@ public class ReceivingThread implements Runnable {
                     ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
                     Server.socketMap.put(p.string1,objectOutputStream);
 
+
                 }else if(p.operation.equals("send")){
 
                     p.operation="receive";
@@ -82,8 +83,12 @@ public class ReceivingThread implements Runnable {
                     }
 
                 }else if(p.operation.equals("receive")){
-
-                    Platform.runLater(()->{  db.receiveMessage(p.list.get(0)); });
+                    for(int i=0;i<p.list.size();i++) {
+                        final int temp=i;
+                        Platform.runLater(() -> {
+                            db.receiveMessage(p.list.get(temp));
+                        });
+                    }
 
                 }
             }
