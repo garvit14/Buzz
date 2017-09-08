@@ -46,7 +46,7 @@ public class Main extends Application {
 //        primaryStage.setTitle("Buzz");
 //        primaryStage.setResizable(false);
 //        primaryStage.setScene(new Scene(root));
-//        primaryStage.show();
+//        primaryStage.show();w
 
     }
 
