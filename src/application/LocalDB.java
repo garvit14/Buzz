@@ -1,6 +1,7 @@
 package application;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 
 import java.sql.*;
 import java.text.ParseException;
@@ -69,14 +70,11 @@ public class LocalDB {
 
     // Method to fetch all messages from local DB and update the messages Observable list
 
-    public void updateAllMessages(People user) throws SQLException {
-        int c=0;
-        System.out.println(""+user);
+    public void updateAllMessages(People user, ObservableList<Message> messageList) throws SQLException {
         String query="select * from Messages where sender='"+user.userName+"' or receiver='"+user.userName+"';";
         ResultSet rs = DBquery(query);
-        controller.messageList.clear();
+        //controller.messageList.clear();
         while(rs.next()){
-            c++;
             Date date=null;
             // Need to parse sqlite time to Java Date object
             try {
@@ -86,9 +84,8 @@ public class LocalDB {
 
                 e.printStackTrace();
             }
-            controller.messageList.add(new Message(rs.getString("text"),rs.getString("sender"),rs.getString("receiver"),date));
+            messageList.add(new Message(rs.getString("text"),rs.getString("sender"),rs.getString("receiver"),date));
         }
-        System.out.println(""+c);
     }
 
     // Method to fetch all users from local DB and update the users Observable list
@@ -104,11 +101,8 @@ public class LocalDB {
         }
     }
 
-    public void sendMessage(People receiver,String text) throws SQLException {
-        Message message = new Message(text,Main.user.userName,receiver.userName,new Date());
-        System.out.println(message);
+    public void sendMessage(Message message) throws SQLException {
         storeMessage(message);
-        updateAllMessages(receiver);
         if(main.isConnected){
             Packet packet = new Packet();
             packet.operation="send";
@@ -116,18 +110,8 @@ public class LocalDB {
             SendingThread sendingThread = new SendingThread(main.objectOutputStream,packet);
             Thread t=new Thread(sendingThread);
             t.start();
+            System.out.println("Messege sent");
         }
-    }
-
-    public void receiveMessage(Message message){
-        storeMessage(message);
-        try {
-            People user = new People("",message.receiver,"");
-            updateAllMessages(user);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        //updateAllMessages(message.sender);
     }
 
     public void storeMessage(Message message){

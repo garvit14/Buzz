@@ -21,10 +21,11 @@ public class ReceivingThread implements Runnable {
     private ObjectInputStream objectInputStream;
     private ObjectOutputStream objectOutputStream;
     private LocalDB db;
-    public ReceivingThread(Socket clientSocket, Connection conn,LocalDB db){
+    private MainController controller;
+    public ReceivingThread(Socket clientSocket, Connection conn,MainController controller){
         this.clientSocket=clientSocket;
         this.conn=conn;
-        this.db=db;
+        this.controller=controller;
         try {
             objectInputStream = new ObjectInputStream(clientSocket.getInputStream());
         } catch (IOException e) {
@@ -58,18 +59,19 @@ public class ReceivingThread implements Runnable {
                     p.operation = "receive";
                     String url = "jdbc:sqlite:./Databases/BuzzServer.db";
                     conn = DriverManager.getConnection(url);
-                    String query = "Select * from Messages where receiver = '"+p.string1+"'";
+                    String query = "Select * from Messages where receiver = '"+p.string1+"'";   //First get all the messages stored on database.
                     Statement stmt = conn.createStatement();
                     ResultSet rs = stmt.executeQuery(query);
                     while(rs.next()){
-                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                        String testDate="2017-09-08 13:00:14";
-                        Message message = new Message(rs.getString("message"),rs.getString("sender"),rs.getString("receiver"),df.parse(testDate));
+                        Date date=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(rs.getString("time"));  //Parse the sate to string
+                        Message message = new Message(rs.getString("message"),rs.getString("sender"),rs.getString("receiver"),date);
                         p.list.add(message);
                     }
                     SendingThread sendingThread = new SendingThread(objectOutputStream,p);
                     Thread send = new Thread(sendingThread);
                     send.start();
+                    query = "Delete from Messages where receiver = '"+p.string1+"'";    //Then delete the messages when they are sent to the user.
+                    stmt.executeUpdate(query);
 
                 }else if(p.operation.equals("send")){
 
@@ -78,6 +80,7 @@ public class ReceivingThread implements Runnable {
                         SendingThread sendingThread = new SendingThread(Server.socketMap.get(p.list.get(0).receiver), p);
                         Thread t=new Thread(sendingThread);
                         t.start();
+                        System.out.println("User online message sent");
                     }else{
                         Statement stmt = null;
                         try {
@@ -95,10 +98,11 @@ public class ReceivingThread implements Runnable {
                     }
 
                 }else if(p.operation.equals("receive")){
+                    System.out.println("Messege Received");
                     for(int i=0;i<p.list.size();++i) {
                         final int temp=i;
                         Platform.runLater(() -> {
-                            db.receiveMessage(p.list.get(temp));
+                            controller.receiveMessage(p.list.get(temp));
                         });
                     }
                 }
