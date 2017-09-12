@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<HBox fx:id="body" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="60.0" prefWidth="250.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Circle fx:id="circle" fill="DODGERBLUE" radius="22.0" stroke="#39b232" strokeType="INSIDE" strokeWidth="3.0">
+         <HBox.margin>
+            <Insets left="5.0" right="5.0" top="8.0" />
+         </HBox.margin>
+      </Circle>
+      <Label fx:id="name" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" text="Sumit Singh" HBox.hgrow="ALWAYS">
+         <HBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </HBox.margin>
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <Label fx:id="counter" alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="20.0" prefWidth="20.0" text="5">
+         <HBox.margin>
+            <Insets bottom="18.0" left="5.0" right="5.0" top="18.0" />
+         </HBox.margin>
+      </Label>
+   </children>
+</HBox>

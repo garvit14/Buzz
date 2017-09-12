@@ -14,6 +14,7 @@ import javafx.scene.layout.AnchorPane;
 
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 public class MainController {
 
@@ -51,18 +52,21 @@ public class MainController {
             System.out.println("SQL error in setting users");
             e.printStackTrace();
         }
+        peopleListView.setItems(peopleList);
+        peopleListView.setCellFactory(peopleListView -> new UserListViewCell());
+
         peopleListView.setOnMouseClicked(mouseEvent -> {
             System.out.println("Button Clicked");
             try {
                 currentlyOpenUser=peopleListView.getSelectionModel().getSelectedItem();
+                System.out.println(peopleListView.getSelectionModel().getSelectedItem().userName);
                 db.updateAllMessages(peopleListView.getSelectionModel().getSelectedItem(),messageList);
             } catch (SQLException e) {
                 System.out.println("Local Database Error");
                 e.printStackTrace();
             }
-            //temp.setText(list.getSelectionModel().getSelectedItem().name);
         });
-        peopleListView.setItems(peopleList);
+
         messageList=FXCollections.observableArrayList();
         messageListView.setItems(messageList);
         messageListView.setCellFactory(messageListView -> new MessageListViewCell());
@@ -97,6 +101,14 @@ public class MainController {
 
     public void receiveMessage(Message message){
         db.storeMessage(message);
+        if(!message.sender.equals(currentlyOpenUser.userName)){
+            for(People p:peopleList){
+                if(p.userName.equals(message.sender)){
+                    p.counter++;
+                    break;
+                }
+            }
+        }
         if(currentlyOpenUser!=null && message.sender.equals(currentlyOpenUser.userName))
             try {
                 db.updateAllMessages(currentlyOpenUser,messageList);
@@ -106,9 +118,18 @@ public class MainController {
             }
     }
 
+    public void updateStatus(List<People> list){
+        peopleList.clear();
+        peopleList.addAll(list);
+    }
+
     public void setMain(Main main){
         this.main=main;
         db.setMain(main);
+        //Has to do it in here because main is null before this
+        OnlineStatusThread onlineStatusThread = new OnlineStatusThread(this,main);
+        Thread t = new Thread(onlineStatusThread);
+        t.start();
     }
 
 }

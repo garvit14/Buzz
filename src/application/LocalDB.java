@@ -7,6 +7,7 @@ import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /*
  *  Class to handle all the local database queries
@@ -73,7 +74,7 @@ public class LocalDB {
     public void updateAllMessages(People user, ObservableList<Message> messageList) throws SQLException {
         String query="select * from Messages where sender='"+user.userName+"' or receiver='"+user.userName+"';";
         ResultSet rs = DBquery(query);
-        //controller.messageList.clear();
+        messageList.clear();
         while(rs.next()){
             Date date=null;
             // Need to parse sqlite time to Java Date object

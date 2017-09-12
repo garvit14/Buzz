@@ -56,9 +56,8 @@ public class ReceivingThread implements Runnable {
 
                     ObjectOutputStream objectOutputStream = new ObjectOutputStream(clientSocket.getOutputStream());
                     Server.socketMap.put(p.string1,objectOutputStream);
+
                     p.operation = "receive";
-                    String url = "jdbc:sqlite:./Databases/BuzzServer.db";
-                    conn = DriverManager.getConnection(url);
                     String query = "Select * from Messages where receiver = '"+p.string1+"'";   //First get all the messages stored on database.
                     Statement stmt = conn.createStatement();
                     ResultSet rs = stmt.executeQuery(query);
@@ -67,10 +66,15 @@ public class ReceivingThread implements Runnable {
                         Message message = new Message(rs.getString("message"),rs.getString("sender"),rs.getString("receiver"),date);
                         p.list.add(message);
                     }
+
                     SendingThread sendingThread = new SendingThread(objectOutputStream,p);
                     Thread send = new Thread(sendingThread);
                     send.start();
+
                     query = "Delete from Messages where receiver = '"+p.string1+"'";    //Then delete the messages when they are sent to the user.
+                    stmt.executeUpdate(query);
+
+                    query = "update User set isActive=1 where username='"+p.string1+"'";
                     stmt.executeUpdate(query);
 
                 }else if(p.operation.equals("send")){
@@ -84,8 +88,6 @@ public class ReceivingThread implements Runnable {
                     }else{
                         Statement stmt = null;
                         try {
-                            String url = "jdbc:sqlite:./Databases/BuzzServer.db";
-                            conn = DriverManager.getConnection(url);
                             stmt = conn.createStatement();
                         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                         String query="insert into Messages (sender,receiver,message,time) values('"+p.list.get(0).sender+"','"+p.list.get(0).receiver+"','"+p.list.get(0).text+"','"+df.format(p.list.get(0).date)+"')";
@@ -99,12 +101,34 @@ public class ReceivingThread implements Runnable {
 
                 }else if(p.operation.equals("receive")){
                     System.out.println("Messege Received");
+                    if(p.peopleList.size()>0)
                     for(int i=0;i<p.list.size();++i) {
                         final int temp=i;
                         Platform.runLater(() -> {
                             controller.receiveMessage(p.list.get(temp));
                         });
                     }
+                }else if(p.operation.equals("logout")){
+                    Server.socketMap.remove(p.string1);
+                    clientSocket.close();
+                }else if(p.operation.equals("onlinerequest")){
+                    Statement stmt=null;
+                    stmt = conn.createStatement();
+                    ResultSet rs=null;
+                    for(People user: p.peopleList){
+                        String query="select * from User where username='"+user.userName+"'";
+                        rs=stmt.executeQuery(query);
+                        if(rs.next() && rs.getInt("isActive")==1)
+                            user.isActive=true;
+                    }
+                    p.operation="onlineresponse";
+                    SendingThread sendingThread = new SendingThread(Server.socketMap.get(p.string1), p);
+                    Thread t=new Thread(sendingThread);
+                    t.start();
+                }else if(p.operation.equals("onlineresponse")){
+                    Platform.runLater(()->{
+                        controller.updateStatus(p.peopleList);
+                    });
                 }
             }
         } catch (IOException e) {

@@ -42,15 +42,6 @@ public class Server {
 
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
-            } finally {
-                try {
-                    if (conn != null) {
-                        //System.out.println("Connection is closing.");
-                        conn.close();
-                    }
-                } catch (SQLException ex) {
-                    System.out.println(ex.getMessage());
-                }
             }
             return conn;
     }
