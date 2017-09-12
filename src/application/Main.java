@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.SplitPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -28,25 +29,31 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         isConnected=false;
         FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("../resources/fxml/main.fxml"));
+//        Parent profile = FXMLLoader.load(getClass().getResource("../resources/fxml/profile.fxml"));
         Parent root = fxmlLoader.load();
         mainController=fxmlLoader.<MainController>getController();
         mainController.setMain(this);   //Set Main class reference in mainController class
+//        SplitPane splitPane =  primaryStage.getScene();
+
         primaryStage.setTitle("Buzz");
         primaryStage.setScene(new Scene(root));
+        System.out.println("Showing primary stage "+primaryStage);
         primaryStage.show();
-        if(connection("192.168.31.253")) {
+
+//        Parent root = FXMLLoader.load(getClass().getResource("../resources/fxml/profile.fxml"));
+//        primaryStage.setTitle("Buzz");
+//        primaryStage.setResizable(false);
+//        primaryStage.setScene(new Scene(root));
+//        primaryStage.show();
+
+
+        if(connection("localhost")) {
             isConnected=true;
             ReceivingThread receivingThread = new ReceivingThread(socket,null,mainController);
             Thread t = new Thread(receivingThread);
             t.start();
             System.out.println("Connection to sever established");
         }
-//        Parent root = FXMLLoader.load(getClass().getResource("../resources/fxml/login.fxml"));
-//        primaryStage.setTitle("Buzz");
-//        primaryStage.setResizable(false);
-//        primaryStage.setScene(new Scene(root));
-//        primaryStage.show();
-
     }
 
     public static void main(String[] args) {

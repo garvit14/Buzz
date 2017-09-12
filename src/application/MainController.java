@@ -6,9 +6,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 
 import java.sql.SQLException;
 import java.util.Date;
@@ -23,6 +25,12 @@ public class MainController {
     private TextField sendInput;
     @FXML
     private Button sendButton;
+    @FXML
+    private AnchorPane profilePane;
+    @FXML
+    private AnchorPane messagePane;
+    @FXML
+    private SplitPane splitPane;
 
     public ObservableList<People> peopleList;
     public ObservableList<Message> messageList;
@@ -58,6 +66,11 @@ public class MainController {
         messageList=FXCollections.observableArrayList();
         messageListView.setItems(messageList);
         messageListView.setCellFactory(messageListView -> new MessageListViewCell());
+
+        //removing the message pane and adding the profile pane
+        System.out.println("At the removing area "+profilePane);
+        splitPane.getItems().remove(1);
+        splitPane.getItems().add(1,profilePane);
     }
 
     @FXML
